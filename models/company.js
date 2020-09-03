@@ -1,7 +1,6 @@
-const db = require("../db");
+const db = require('../db')
 
 class Company {
-
   static async findAll() {
     const res = await db.query(
       `SELECT handle,
@@ -10,9 +9,10 @@ class Company {
               description,
               logo_url
           FROM companies
-          ORDER BY handle`);
+          ORDER BY handle`
+    )
 
-    return res.rows;
+    return res.rows
   }
 
   static async findOne(handle) {
@@ -23,13 +23,18 @@ class Company {
               description,
               logo_url
           FROM companies
-          WHERE handle = $1`, [handle]);
+          WHERE handle = $1`,
+      [handle]
+    )
 
     if (res.rows.length === 0) {
-      throw { message: `There is no company with a handle of ${handle}`, status: 404 }
+      throw {
+        message: `There is no company with a handle of ${handle}`,
+        status: 404,
+      }
     }
 
-    return res.rows[0];
+    return res.rows[0]
   }
 
   static async create(data) {
@@ -51,11 +56,11 @@ class Company {
         data.name,
         data.num_employees,
         data.description,
-        data.logo_url
+        data.logo_url,
       ]
-    );
+    )
 
-    return result.rows[0];
+    return result.rows[0]
   }
 
   static async update(handle, data) {
@@ -71,20 +76,17 @@ class Company {
                   num_employees,
                   description,
                   logo_url`,
-      [
-        data.name,
-        data.num_employees,
-        data.description,
-        data.logo_url,
-        handle
-      ]
-    );
+      [data.name, data.num_employees, data.description, data.logo_url, handle]
+    )
 
     if (result.rows.length === 0) {
-      throw { message: `There is no company with a handle of ${handle}`, status: 404 }
+      throw {
+        message: `There is no company with a handle of ${handle}`,
+        status: 404,
+      }
     }
 
-    return result.rows[0];
+    return result.rows[0]
   }
 
   /** remove book with matching isbn. Returns undefined. */
@@ -94,13 +96,16 @@ class Company {
       `DELETE FROM companies 
          WHERE handle = $1 
          RETURNING handle`,
-      [handle]);
+      [handle]
+    )
 
     if (result.rows.length === 0) {
-      throw { message: `There is no company with a handle of ${handle}`, status: 404 }
+      throw {
+        message: `There is no company with a handle of ${handle}`,
+        status: 404,
+      }
     }
   }
 }
 
-
-module.exports = Company;
+module.exports = Company
