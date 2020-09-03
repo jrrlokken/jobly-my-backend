@@ -60,12 +60,12 @@ class Company {
 
   static async update(handle, data) {
     const result = await db.query(
-      `UPDATE books SET 
+      `UPDATE companies SET 
             name=($1),
             num_employees=($2),
             description=($3),
-            logo_url=($4),
-            WHERE handle=$5
+            logo_url=($4)
+          WHERE handle=$5
         RETURNING handle,
                   name,
                   num_employees,
