@@ -1,14 +1,14 @@
 process.env.NODE_ENV = 'test'
 
 const request = require('supertest')
-const partialUpdate = require('../../helpers/partialUpdate')
+const sqlForPartialUpdate = require('../../helpers/partialUpdate')
 
-const app = require('../app')
-const db = require('../db')
+const app = require('../../app')
+const db = require('../../db')
 
 describe('partialUpdate()', () => {
   it('should generate a proper partial update query with just 1 field', function () {
-    const update = partialUpdate(
+    const update = sqlForPartialUpdate(
       'companies',
       {
         handle: 'testcorp',
@@ -32,7 +32,7 @@ describe('partialUpdate()', () => {
     const values = [
       'testcorp',
       'Test Corporation',
-      '50',
+      50,
       'Corporation dedicated to testing javascript.',
       'https://via.placeholder.com/200',
       1,
@@ -40,4 +40,8 @@ describe('partialUpdate()', () => {
 
     expect(update).toEqual({ query, values })
   })
+})
+
+afterAll(async () => {
+  await db.end()
 })
