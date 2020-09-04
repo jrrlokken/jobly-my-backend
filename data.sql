@@ -7,10 +7,10 @@ CREATE TABLE companies (
 );
 
 CREATE TABLE jobs (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     salary REAL NOT NULL,
     equity REAL NOT NULL,
     company_handle TEXT REFERENCES companies(handle) ON DELETE CASCADE,
-    date_posted TIMESTAMP WITHOUT TIME ZONE NOT NULL
+    date_posted TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
