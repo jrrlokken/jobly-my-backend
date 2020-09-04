@@ -103,4 +103,4 @@ class Job {
   }
 }
 
-module.exports = Company
+module.exports = Job
