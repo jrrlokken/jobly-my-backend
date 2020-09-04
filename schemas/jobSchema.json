@@ -15,14 +15,7 @@
       "date_posted": "2020-09-04T17:28:02.364Z"
     }
   ],
-  "required": [
-    "id",
-    "title",
-    "salary",
-    "equity",
-    "company_handle",
-    "date_posted"
-  ],
+  "required": ["title", "salary", "equity", "company_handle"],
   "properties": {
     "id": {
       "$id": "#/properties/id",
