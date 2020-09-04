@@ -10,7 +10,7 @@ class Job {
               company_handle,
               date_posted
           FROM jobs
-          ORDER BY id`
+          ORDER BY date_posted DESC`
     )
 
     return res.rows
@@ -59,49 +59,48 @@ class Job {
     return result.rows[0]
   }
 
-  // static async update(handle, data) {
-  //   const result = await db.query(
-  //     `UPDATE companies SET
-  //           name=($1),
-  //           num_employees=($2),
-  //           description=($3),
-  //           logo_url=($4)
-  //         WHERE handle=$5
-  //       RETURNING handle,
-  //                 name,
-  //                 num_employees,
-  //                 description,
-  //                 logo_url`,
-  //     [data.name, data.num_employees, data.description, data.logo_url, handle]
-  //   )
+  static async update(id, data) {
+    const result = await db.query(
+      `UPDATE jobs SET
+            title=($1),
+            salary=($2),
+            equity=($3),
+            company_handle=($4)
+          WHERE id=$5
+        RETURNING id,
+                  title,
+                  salary,
+                  equity,
+                  company_handle,
+                  date_posted`,
+      [data.title, data.salary, data.equity, data.company_handle, id]
+    )
 
-  //   if (result.rows.length === 0) {
-  //     throw {
-  //       message: `There is no company with a handle of ${handle}`,
-  //       status: 404,
-  //     }
-  //   }
+    if (result.rows.length === 0) {
+      throw {
+        message: `There is no job with an id of ${id}`,
+        status: 404,
+      }
+    }
 
-  //   return result.rows[0]
-  // }
+    return result.rows[0]
+  }
 
-  /** remove book with matching isbn. Returns undefined. */
+  static async remove(id) {
+    const result = await db.query(
+      `DELETE FROM jobs
+         WHERE id = $1
+         RETURNING id`,
+      [id]
+    )
 
-  // static async remove(handle) {
-  //   const result = await db.query(
-  //     `DELETE FROM companies
-  //        WHERE handle = $1
-  //        RETURNING handle`,
-  //     [handle]
-  //   )
-
-  //   if (result.rows.length === 0) {
-  //     throw {
-  //       message: `There is no company with a handle of ${handle}`,
-  //       status: 404,
-  //     }
-  //   }
-  // }
+    if (result.rows.length === 0) {
+      throw {
+        message: `There is no job with an id of ${id}`,
+        status: 404,
+      }
+    }
+  }
 }
 
 module.exports = Company
