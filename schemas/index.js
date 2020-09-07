@@ -1,0 +1,6 @@
+exports.userNewSchema = require('./userNewSchema.json')
+exports.userUpdateSchema = require('./userUpdateSchema.json')
+exports.companyNewSchema = require('./companyNewSchema.json')
+exports.companyUpdateSchema = require('./companyUpdateSchema.json')
+exports.jobNewSchema = require('./jobNewSchema.json')
+exports.jobUpdateSchema = require('./jobUpdateSchema.json')
