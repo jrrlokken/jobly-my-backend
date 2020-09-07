@@ -2,7 +2,7 @@ const Router = require('express').Router
 const jsonschema = require('jsonschema')
 
 const Company = require('../models/company')
-const companySchema = require('../schemas/companySchema.json')
+const { companyNewSchema, companyUpdateSchema } = require('../schemas/')
 const ExpressError = require('../helpers/expressError')
 const db = require('../db')
 
@@ -43,9 +43,9 @@ router.get('/:handle', async function (req, res, next) {
 
 router.post('/', async function (req, res, next) {
   try {
-    const result = jsonschema.validate(req.body, companySchema)
+    const validation = validate(req.body, companyNewSchema)
 
-    if (!result.valid) {
+    if (!validation.valid) {
       let errorList = result.errors.map((error) => error.stack)
       let error = new ExpressError(errorList, 400)
       return next(error)
@@ -60,9 +60,9 @@ router.post('/', async function (req, res, next) {
 
 router.patch('/:handle', async function (req, res, next) {
   try {
-    const result = jsonschema.validate(req.body, companySchema)
+    const validation = validate(req.body, companyUpdateSchema)
 
-    if (!result.valid) {
+    if (!validation.valid) {
       let errorList = result.errors.map((error) => error.stack)
       let error = new ExpressError(errorList, 400)
       return next(error)

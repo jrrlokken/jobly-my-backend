@@ -1,8 +1,8 @@
 const Router = require('express').Router
-const jsonschema = require('jsonschema')
+const { validate } = require('jsonschema')
 
 const Job = require('../models/job')
-const jobSchema = require('../schemas/jobSchema.json')
+const { jobNewSchema, jobUpdateSchema } = require('../schemas')
 const ExpressError = require('../helpers/expressError')
 
 const router = new Router()
@@ -28,9 +28,9 @@ router.get('/:id', async function (req, res, next) {
 
 router.post('/', async function (req, res, next) {
   try {
-    const result = jsonschema.validate(req.body, jobSchema)
+    const validation = validate(req.body, jobNewSchema)
 
-    if (!result.valid) {
+    if (!validation.valid) {
       let errorList = result.errors.map((error) => error.stack)
       let error = new ExpressError(errorList, 400)
       return next(error)
@@ -45,9 +45,9 @@ router.post('/', async function (req, res, next) {
 
 router.patch('/:id', async function (req, res, next) {
   try {
-    // const result = jsonschema.validate(req.body, jobSchema)
+    const validation = validate(req.body, jobUpdateSchema)
 
-    if (!result.valid) {
+    if (!validation.valid) {
       let errorList = result.errors.map((error) => error.stack)
       let error = new ExpressError(errorList, 400)
       return next(error)
