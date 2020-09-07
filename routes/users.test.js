@@ -4,7 +4,6 @@ const request = require('supertest')
 
 const app = require('../app')
 const db = require('../db')
-const User = require('../models/user')
 
 let user = {
   username: 'testuser',
@@ -43,31 +42,35 @@ describe('GET /users/username', () => {
   })
 })
 
-describe('POST /jobs', () => {
-  test('Add new job to the database', async () => {
-    const newJob = {
-      title: 'newjob',
-      salary: 50000,
-      equity: 0.1,
-      company_handle: 'testcorp',
+describe('POST /users', () => {
+  test('Add new user to the database', async () => {
+    const newUser = {
+      username: 'newuser',
+      password: 'password',
+      first_name: 'Gwendolyn',
+      last_name: 'Brooks',
+      email: 'gbrooks@example.com',
+      photo_url: 'https://via.placeholder.com/200',
     }
 
-    const resp = await request(app).post(`/jobs`).send(newJob)
+    const resp = await request(app).post(`/users`).send(newUser)
     expect(resp.statusCode).toBe(201)
     expect(resp.body).toEqual({
-      job: newJob,
+      user: newUser,
     })
   })
 
-  test('Attempt to add job with invalid data', async () => {
-    const newJob = {
-      title: 33,
-      salary: '50000',
-      equity: 0.1,
-      company_handle: 'testcorp',
+  test('Attempt to add user with invalid data', async () => {
+    const newUser = {
+      username: 'testuser',
+      password: '',
+      first_name: 'Test',
+      last_name: 'User',
+      email: 'tuser@example.com',
+      photo_url: 75,
     }
 
-    const res = await request(app).post(`/jobs`).send(newJob)
+    const res = await request(app).post(`/users`).send(newUser)
 
     expect(res.statusCode).toBe(400)
     // expect(res.body.message).toEqual([
@@ -76,36 +79,37 @@ describe('POST /jobs', () => {
   })
 })
 
-describe('PATCH /jobs/:id', () => {
-  test('Update a single job', async () => {
-    job.title = 'Senior Managing Partner'
+describe('PATCH /users/:username', () => {
+  test('Update a single user', async () => {
+    user.first_name = 'Garrett'
 
-    const res = await request(app).patch(`/jobs/1`).send(job)
+    const res = await request(app).patch(`/users/${user.username}`).send(user)
 
     expect(res.statusCode).toBe(200)
-    expect(res.body).toEqual({ job: job })
+    expect(res.body).toEqual({ user: user })
   })
 })
 
-describe('DELETE /jobs/:id', () => {
-  test('Delete a single job by id', async () => {
-    const res = await request(app).delete(`/jobs/${job.id}`)
+describe('DELETE /users/:username', () => {
+  test('Delete a single user by username', async () => {
+    const res = await request(app).delete(`/users/${user.username}`)
 
     expect(res.statusCode).toBe(200)
-    expect(res.body).toEqual({ message: 'Job deleted' })
+    expect(res.body).toEqual({ message: 'User deleted' })
   })
 
-  test('Attempt to delete a job with invalid id', async () => {
-    const res = await request(app).delete('/jobs/999')
+  test('Attempt to delete a user with invalid username', async () => {
+    const res = await request(app).delete('/users/superuser')
 
     expect(res.statusCode).toBe(404)
-    expect(res.body.message).toEqual('There is no job with an id of 999')
+    expect(res.body.message).toEqual(
+      'There is no user with a username of superuser'
+    )
   })
 })
 
 afterEach(async () => {
-  await db.query('DELETE FROM jobs')
-  await db.query('DELETE FROM companies')
+  await db.query('DELETE FROM users')
 })
 
 afterAll(async () => {
