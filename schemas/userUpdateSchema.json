@@ -48,6 +48,20 @@
       "title": "The Email Schema ",
       "default": "",
       "examples": ["jrrlokken@gmail.com"]
+    },
+    "current_company": {
+      "$id": "/properties/current_company",
+      "type": "string",
+      "title": "The Current_company Schema ",
+      "default": "",
+      "examples": ["rithm"]
+    },
+    "_token": {
+      "$id": "/properties/token",
+      "type": "string",
+      "title": "The Token Schema",
+      "default": "",
+      "examples": ["password1234"]
     }
   }
 }

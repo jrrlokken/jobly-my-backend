@@ -1,3 +1,4 @@
+exports.userAuthSchema = require('./userAuthSchema.json')
 exports.userNewSchema = require('./userNewSchema.json')
 exports.userUpdateSchema = require('./userUpdateSchema.json')
 exports.companyNewSchema = require('./companyNewSchema.json')
