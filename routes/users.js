@@ -1,11 +1,12 @@
-const Router = require('express').Router
+const express = require('express')
 const { validate } = require('jsonschema')
-
+const { ensureCorrectUser } = require('../middleware/auth')
+const createToken = require('../helpers/createToken')
 const User = require('../models/user')
 const { userNewSchema, userUpdateSchema } = require('../schemas')
 const ExpressError = require('../helpers/expressError')
 
-const router = new Router()
+const router = express.Router()
 
 router.get('/', async function (req, res, next) {
   try {
@@ -38,13 +39,14 @@ router.post('/', async function (req, res, next) {
     }
 
     const newUser = await User.register(req.body)
-    return res.status(201).json({ newUser })
+    const token = createToken(newUser)
+    return res.status(201).json({ token })
   } catch (err) {
     return next(err)
   }
 })
 
-router.patch('/:username', async function (req, res, next) {
+router.patch('/:username', ensureCorrectUser, async function (req, res, next) {
   try {
     if ('username' in req.body || 'is_admin' in req.body) {
       throw new ExpressError(
@@ -68,7 +70,7 @@ router.patch('/:username', async function (req, res, next) {
   }
 })
 
-router.delete('/:id', async function (req, res, next) {
+router.delete('/:id', ensureCorrectUser, async function (req, res, next) {
   try {
     await User.remove(req.params.username)
     return res.json({ message: 'User deleted' })

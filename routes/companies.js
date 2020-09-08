@@ -1,14 +1,15 @@
-const Router = require('express').Router
-const jsonschema = require('jsonschema')
+const express = require('express')
+const { validate } = require('jsonschema')
 
 const Company = require('../models/company')
 const { companyNewSchema, companyUpdateSchema } = require('../schemas/')
+const { authRequired, adminRequired } = require('../middleware/auth')
 const ExpressError = require('../helpers/expressError')
 const db = require('../db')
 
-const router = new Router()
+const router = express.Router()
 
-router.get('/', async function (req, res, next) {
+router.get('/', authRequired, async function (req, res, next) {
   try {
     let searchTerm = req.query.search
     let companies
@@ -32,7 +33,7 @@ router.get('/', async function (req, res, next) {
   }
 })
 
-router.get('/:handle', async function (req, res, next) {
+router.get('/:handle', authRequired, async function (req, res, next) {
   try {
     const company = await Company.findOne(req.params.handle)
     return res.json({ company })
@@ -41,7 +42,7 @@ router.get('/:handle', async function (req, res, next) {
   }
 })
 
-router.post('/', async function (req, res, next) {
+router.post('/', adminRequired, async function (req, res, next) {
   try {
     const validation = validate(req.body, companyNewSchema)
 
@@ -58,7 +59,7 @@ router.post('/', async function (req, res, next) {
   }
 })
 
-router.patch('/:handle', async function (req, res, next) {
+router.patch('/:handle', adminRequired, async function (req, res, next) {
   try {
     const validation = validate(req.body, companyUpdateSchema)
 
@@ -75,7 +76,7 @@ router.patch('/:handle', async function (req, res, next) {
   }
 })
 
-router.delete('/:handle', async function (req, res, next) {
+router.delete('/:handle', adminRequired, async function (req, res, next) {
   try {
     await Company.remove(req.params.handle)
     return res.json({ message: 'Company deleted' })
