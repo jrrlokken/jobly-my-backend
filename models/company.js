@@ -2,17 +2,41 @@ const db = require('../db')
 
 class Company {
   static async findAll() {
-    const res = await db.query(
-      `SELECT handle,
-              name,
-              num_employees,
-              description,
-              logo_url
-          FROM companies
-          ORDER BY handle`
-    )
+    let baseQuery = `SELECT handle, name FROM companies`
+    let whereClause = []
+    let queryValues = []
 
-    return res.rows
+    if (+data.min_employees >= +data.max_employees) {
+      throw new ExpressError(
+        'Min employees must be less than max employees',
+        300
+      )
+    }
+
+    if (data.min_employees) {
+      queryValues.push(+data.min_employees)
+      whereClause.push(`num_employees >= $${queryValues.length}`)
+    }
+
+    if (data.max_employees) {
+      queryValues.push(+data.max_employees)
+      whereClause.push(`num_employees <= $${queryValues.length}`)
+    }
+
+    if (data.search) {
+      queryValues.push(`%${data.search}%`)
+      whereClause.push(`name ILIKE $${queryValues.length}`)
+    }
+
+    if (whereClause.length > 0) {
+      baseQuery += ' WHERE '
+    }
+
+    // Here is the final query
+
+    let finalQuery = baseQuery + whereClause.join(' AND ') + ' ORDER BY name'
+    const companies = await db.query(finalQuery, queryValues)
+    return companies.rows
   }
 
   static async findOne(handle) {
