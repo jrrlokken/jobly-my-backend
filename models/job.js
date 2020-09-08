@@ -2,60 +2,68 @@ const db = require('../db')
 const sqlForPartialUpdate = require('../helpers/partialUpdate')
 
 class Job {
-  // static async search(str = '', min = 0, equity = 0) {
-  //   const result = await db.query(
-  //     `SELECT * FROM jobs WHERE
-  //               (title ILIKE $1 OR company_handle ILIKE $1) AND salary >= $2 AND equity >= $3`,
-  //     [`%${str}%`, min, equity]
-  //   )
-  //   if (result.rows.length === 0) {
-  //     throw new ExpressError('no results', 400)
-  //   }
-  //   return result.rows.map(
-  //     (j) =>
-  //       new Job(
-  //         j.id,
-  //         j.title,
-  //         j.salary,
-  //         j.equity,
-  //         j.company_handle,
-  //         j.date_posted
-  //       )
-  //   )
-  // }
-
   static async findAll() {
-    const res = await db.query(
-      `SELECT title,
-              company_handle
-          FROM jobs
-          ORDER BY date_posted DESC`
-    )
+    let baseQuery = `SELECT id, title, company_handle FROM jobs`
+    let whereClause = []
+    let queryValues = []
 
-    return res.rows
+    if (data.min_salary) {
+      queryValues.push(+data.min_salary)
+      whereClause.push(`min_salary >= $${queryValues.length}`)
+    }
+
+    if (data.max_quity) {
+      queryValues.push(+data.max_equity)
+      whereClause.push(`max_equity <= $${queryValues.length}`)
+    }
+
+    if (data.search) {
+      queryValues.push(`%${data.search}%`)
+      whereClause.push(`name ILIKE $${queryValues.length}`)
+    }
+
+    if (whereClause.length > 0) {
+      baseQuery += ' WHERE '
+    }
+
+    // Here is the final query
+
+    let finalQuery = baseQuery + whereClause.join(' AND ')
+    const jobs = await db.query(finalQuery, queryValues)
+    return jobs.rows
   }
 
   static async findOne(id) {
-    const res = await db.query(
+    const jobResponse = await db.query(
       `SELECT id,
               title,
               salary,
               equity,
-              company_handle,
-              date_posted
+              company_handle
           FROM jobs
           WHERE id = $1`,
       [id]
     )
 
-    if (res.rows.length === 0) {
+    const job = jobResponse.rows[0]
+
+    if (!job) {
       throw {
         message: `There is no job with an id of ${id}`,
         status: 404,
       }
     }
 
-    return res.rows[0]
+    const companyResponse = await db.query(
+      `SELECT name, num_employees, description, logo_url
+        FROM companies
+        WHERE handle = $1`,
+      [job.company_handle]
+    )
+
+    job.company = companyResponse.rows[0]
+
+    return job
   }
 
   static async create(data) {
@@ -70,8 +78,7 @@ class Job {
                    title,
                    salary,
                    equity,
-                   company_handle,
-                   date_posted`,
+                   company_handle`,
       [data.title, data.salary, data.equity, data.company_handle]
     )
 
@@ -79,34 +86,18 @@ class Job {
   }
 
   static async update(data) {
-    const { query, values } = sqlForPartialUpdate('jobs', data, 'id', this.id)
-    console.log(query, values)
+    const { query, values } = sqlForPartialUpdate('jobs', data, 'id', id)
     const result = await db.query(query, values)
+    const job = result.rows[0]
 
-    // const result = await db.query(
-    //   `UPDATE jobs SET
-    //         title=($1),
-    //         salary=($2),
-    //         equity=($3),
-    //         company_handle=($4)
-    //       WHERE id=$5
-    //     RETURNING id,
-    //               title,
-    //               salary,
-    //               equity,
-    //               company_handle,
-    //               date_posted`,
-    //   [data.title, data.salary, data.equity, data.company_handle, id]
-    // )
-
-    if (result.rows.length === 0) {
+    if (!job) {
       throw {
         message: `There is no job with an id of ${id}`,
         status: 404,
       }
     }
 
-    return result.rows[0]
+    return job
   }
 
   static async remove(id) {
