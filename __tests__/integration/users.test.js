@@ -65,11 +65,9 @@ describe('POST /users', () => {
   test('Attempt to add user with invalid data', async () => {
     const newUser = {
       username: 'testuser',
-      password: '',
       first_name: 'Test',
       last_name: 'User',
       email: 'tuser@example.com',
-      photo_url: 75,
     }
 
     const res = await request(app).post(`/users`).send(newUser)
@@ -84,13 +82,11 @@ describe('PATCH /users/:username', () => {
       .patch(`/users/${TEST_DATA.currentUsername}`)
       .send({
         first_name: 'killer',
-        _token: `${TEST_DATA.userToken}`,
+        _token: TEST_DATA.userToken,
       })
 
-    const user = res.body.user
-    expect(user).toHaveProperty('username')
-    expect(user).not.toHaveProperty('password')
-    expect(user.first_name).toBe('killer')
+    expect(res.body.user).toHaveProperty('username')
+    expect(res.body.user.first_name).toBe('killer')
   })
 
   test("Update a single user's password", async () => {
@@ -122,15 +118,12 @@ describe('DELETE /users/:username', () => {
     expect(res.body).toEqual({ message: 'User deleted' })
   })
 
-  test('Attempt to delete a user with invalid username', async () => {
+  test('Attempt to delete another user', async () => {
     const res = await request(app)
       .delete('/users/invalid-user')
       .send({ _token: `${TEST_DATA.userToken}` })
 
-    expect(res.statusCode).toBe(404)
-    expect(res.body.message).toEqual(
-      'There is no user with a username of invalid-user'
-    )
+    expect(res.statusCode).toBe(401)
   })
 })
 
