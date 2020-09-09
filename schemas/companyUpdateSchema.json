@@ -1,17 +1,11 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "http://example.com/example.json",
   "type": "object",
   "additionalProperties": false,
+  "required": [
+    "name"
+  ],
   "properties": {
-    "handle": {
-      "$id": "#/properties/handle",
-      "type": "string",
-      "title": "The handle schema",
-      "description": "An explanation about the purpose of this instance.",
-      "default": "",
-      "examples": ["harmony"]
-    },
     "name": {
       "$id": "#/properties/name",
       "type": "string",
@@ -20,6 +14,14 @@
       "default": "",
       "examples": ["Harmony"]
     },
+    "handle": {
+      "$id": "#/properties/handle",
+      "type": "string",
+      "title": "The handle schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": ["harmony"]
+    },
     "logo_url": {
       "$id": "#/properties/logo_url",
       "type": "string",
@@ -27,6 +29,15 @@
       "description": "An explanation about the purpose of this instance.",
       "default": "",
       "examples": ["https://via.placeholder.com/200"]
+    },
+    "_token": {
+      "$id": "/properties/token",
+      "type": "string",
+      "title": "The Token Schema",
+      "default": "",
+      "examples": [
+        "password1234"
+      ]
     }
   }
 }

@@ -2,29 +2,9 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "http://example.com/example.json",
   "type": "object",
-  "title": "The root schema",
-  "description": "The root schema comprises the entire JSON document.",
-  "default": {},
-  "examples": [
-    {
-      "id": 1,
-      "title": "String field",
-      "salary": 11220.0,
-      "equity": 0.5,
-      "company_handle": "harmony",
-      "date_posted": "2020-09-04T17:28:02.364Z"
-    }
-  ],
-  "required": ["title", "salary", "equity", "company_handle"],
+  "additiionalProperties": false,
+  "required": ["title", "salary"],
   "properties": {
-    "id": {
-      "$id": "#/properties/id",
-      "type": "integer",
-      "title": "The id schema",
-      "description": "An explanation about the purpose of this instance.",
-      "default": 0,
-      "examples": [1]
-    },
     "title": {
       "$id": "#/properties/title",
       "type": "string",
@@ -38,15 +18,15 @@
       "type": "number",
       "title": "The salary schema",
       "description": "An explanation about the purpose of this instance.",
-      "default": 0.0,
-      "examples": [11220.0]
+      "default": 0,
+      "examples": [11220]
     },
     "equity": {
       "$id": "#/properties/equity",
       "type": "number",
       "title": "The equity schema",
       "description": "An explanation about the purpose of this instance.",
-      "default": 0.0,
+      "default": 0,
       "examples": [0.5]
     },
     "company_handle": {
@@ -57,14 +37,14 @@
       "default": "",
       "examples": ["harmony"]
     },
-    "date_posted": {
-      "$id": "#/properties/date_posted",
+    "_token": {
+      "$id": "/properties/token",
       "type": "string",
-      "title": "The date_posted schema",
-      "description": "An explanation about the purpose of this instance.",
+      "title": "The Token Schema",
       "default": "",
-      "examples": ["2020-09-04T17:28:02.364Z"]
+      "examples": [
+        "password1234"
+      ]
     }
-  },
-  "additionalProperties": true
+  }
 }

@@ -50,15 +50,7 @@
       "description": "An explanation about the purpose of this instance.",
       "default": "",
       "examples": ["https://via.placeholder.com/200"]
-    },
-    "is_admin": {
-      "$id": "#/properties/is_admin",
-      "type": "boolean",
-      "title": "The is_admin schema",
-      "description": "An explanation about the purpose of this instance.",
-      "default": false,
-      "examples": [true]
     }
   },
-  "required": ["username", "password", "first_name", "last_name", "email"]
+  "required": ["username", "password", "email"]
 }
