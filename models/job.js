@@ -1,11 +1,12 @@
 const db = require('../db')
-const sqlForPartialUpdate = require('../helpers/partialUpdate')
+const partialUpdate = require('../helpers/partialUpdate')
+const ExpressError = require('../helpers/expressError')
 
 class Job {
-  static async findAll() {
-    let baseQuery = `SELECT id, title, company_handle FROM jobs`
-    let whereClause = []
-    let queryValues = []
+  static async findAll(data) {
+    let baseQuery = 'SELECT id, title, company_handle FROM jobs';
+    let whereClause = [];
+    let queryValues = [];
 
     if (data.min_salary) {
       queryValues.push(+data.min_salary)
@@ -19,7 +20,7 @@ class Job {
 
     if (data.search) {
       queryValues.push(`%${data.search}%`)
-      whereClause.push(`name ILIKE $${queryValues.length}`)
+      whereClause.push(`title ILIKE $${queryValues.length}`)
     }
 
     if (whereClause.length > 0) {
@@ -30,7 +31,7 @@ class Job {
 
     let finalQuery = baseQuery + whereClause.join(' AND ')
     const jobs = await db.query(finalQuery, queryValues)
-    return jobs.rows
+    return jobs.rows;
   }
 
   static async findOne(id) {
@@ -48,10 +49,7 @@ class Job {
     const job = jobResponse.rows[0]
 
     if (!job) {
-      throw {
-        message: `There is no job with an id of ${id}`,
-        status: 404,
-      }
+      throw new ExpressError(`There is no job with an id of ${id}`, 404)
     }
 
     const companyResponse = await db.query(
@@ -85,19 +83,17 @@ class Job {
     return result.rows[0]
   }
 
-  static async update(data) {
-    const { query, values } = sqlForPartialUpdate('jobs', data, 'id', id)
-    const result = await db.query(query, values)
-    const job = result.rows[0]
+  static async update(id, data) {
+    let { query, values } = partialUpdate('jobs', data, 'id', id);
+
+    const result = await db.query(query, values);
+    const job = result.rows[0];
 
     if (!job) {
-      throw {
-        message: `There is no job with an id of ${id}`,
-        status: 404,
-      }
+      throw new ExpressError(`There is no job with an id of ${id}`, 404)
     }
 
-    return job
+    return job;
   }
 
   static async remove(id) {
@@ -109,10 +105,8 @@ class Job {
     )
 
     if (result.rows.length === 0) {
-      throw {
-        message: `There is no job with an id of ${id}`,
-        status: 404,
-      }
+      throw new ExpressError(`There is no job with an id of ${id}`, 404)
+
     }
   }
 }

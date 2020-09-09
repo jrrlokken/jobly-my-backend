@@ -106,8 +106,8 @@ class User {
       throw new ExpressError(`User ${username} does not exist.`, 404)
     }
 
-    delete user.password
-    delete user.is_admin
+    delete user.password;
+    delete user.is_admin;
 
     return result.rows[0]
   }

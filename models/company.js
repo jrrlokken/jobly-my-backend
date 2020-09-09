@@ -1,7 +1,9 @@
 const db = require('../db')
+const ExpressError = require('../helpers/expressError')
+const partialUpdate = require('../helpers/partialUpdate')
 
 class Company {
-  static async findAll() {
+  static async findAll(data) {
     let baseQuery = `SELECT handle, name FROM companies`
     let whereClause = []
     let queryValues = []
@@ -9,7 +11,7 @@ class Company {
     if (+data.min_employees >= +data.max_employees) {
       throw new ExpressError(
         'Min employees must be less than max employees',
-        300
+        400
       )
     }
 
@@ -52,16 +54,24 @@ class Company {
     )
 
     if (res.rows.length === 0) {
-      throw {
-        message: `There is no company with a handle of ${handle}`,
-        status: 404,
-      }
+      throw new ExpressError(`There is no company with a handle of ${handle}`, 404)
     }
 
     return res.rows[0]
   }
 
   static async create(data) {
+    const checkExists = await db.query(
+      `SELECT handle
+        FROM companies
+        WHERE handle = $1`,
+      [data.handle]
+    )
+
+    if (checkExists.rows[0]) {
+      throw new ExpressError(`Company ${data.handle} exists.`, 400)
+    }
+
     const result = await db.query(
       `INSERT INTO companies (
             handle,
@@ -88,32 +98,17 @@ class Company {
   }
 
   static async update(handle, data) {
-    const result = await db.query(
-      `UPDATE companies SET 
-            name=($1),
-            num_employees=($2),
-            description=($3),
-            logo_url=($4)
-          WHERE handle=$5
-        RETURNING handle,
-                  name,
-                  num_employees,
-                  description,
-                  logo_url`,
-      [data.name, data.num_employees, data.description, data.logo_url, handle]
-    )
+    let { query, values } = partialUpdate("companies", data, "handle", handle)
 
-    if (result.rows.length === 0) {
-      throw {
-        message: `There is no company with a handle of ${handle}`,
-        status: 404,
-      }
+    const result = await db.query(query, values);
+    const company = result.rows[0];
+
+    if (!company) {
+      throw new ExpressError(`There is no company with a handle of ${handle}`, 404)
     }
 
-    return result.rows[0]
+    return company;
   }
-
-  /** remove book with matching isbn. Returns undefined. */
 
   static async remove(handle) {
     const result = await db.query(
@@ -124,10 +119,7 @@ class Company {
     )
 
     if (result.rows.length === 0) {
-      throw {
-        message: `There is no company with a handle of ${handle}`,
-        status: 404,
-      }
+      throw new ExpressError(`There is no company with a handle of ${handle}`, 404)
     }
   }
 }
