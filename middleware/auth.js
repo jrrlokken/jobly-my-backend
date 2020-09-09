@@ -16,7 +16,7 @@ function authRequired(req, res, next) {
 
 function ensureCorrectUser(req, res, next) {
   try {
-    const tokenString = req.body.token
+    const tokenString = req.body._token
 
     let token = jwt.verify(tokenString, SECRET_KEY)
     res.locals.username = token.username
