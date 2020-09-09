@@ -10,7 +10,6 @@ const router = express.Router({ mergeParams: true })
 router.get('/', authRequired, async function (req, res, next) {
   try {
     const jobs = await Job.findAll(req.query)
-
     return res.json({ jobs })
   } catch (error) {
     return next(error)
@@ -31,9 +30,7 @@ router.post('/', adminRequired, async function (req, res, next) {
     const validation = validate(req.body, jobNewSchema)
 
     if (!validation.valid) {
-      let errorList = result.errors.map((error) => error.stack)
-      let error = new ExpressError(errorList, 400)
-      return next(error)
+      throw new ExpressError(validation.errors.map(e => e.stack), 400);
     }
 
     const job = await Job.create(req.body)
@@ -45,12 +42,14 @@ router.post('/', adminRequired, async function (req, res, next) {
 
 router.patch('/:id', adminRequired, async function (req, res, next) {
   try {
+    if ('id' in req.body) {
+      throw new ExpressError('Changing the ID is not allowed.', 400);
+    }
+
     const validation = validate(req.body, jobUpdateSchema)
 
     if (!validation.valid) {
-      let errorList = result.errors.map((error) => error.stack)
-      let error = new ExpressError(errorList, 400)
-      return next(error)
+      throw new ExpressError(validation.errors.map(e => e.stack), 400);
     }
 
     const job = await Job.update(req.params.id, req.body)

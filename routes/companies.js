@@ -11,22 +11,7 @@ const router = express.Router()
 
 router.get('/', authRequired, async function (req, res, next) {
   try {
-    let searchTerm = req.query.search
-    let companies
-
-    if (!searchTerm) {
-      companies = await Company.findAll(req.query)
-    } else {
-      companies = await Company.findOne(searchTerm)
-    }
-
-    let min_employees = req.query.min_employees
-    let max_employees = req.query.max_employees
-
-    if (min_employees > max_employees) {
-      throw new ExpressError('Invalid parameters.', 400)
-    }
-
+    const companies = await Company.findAll(req.query);
     return res.json({ companies })
   } catch (error) {
     return next(error)
@@ -47,9 +32,7 @@ router.post('/', adminRequired, async function (req, res, next) {
     const validation = validate(req.body, companyNewSchema)
 
     if (!validation.valid) {
-      let errorList = result.errors.map((error) => error.stack)
-      let error = new ExpressError(errorList, 400)
-      return next(error)
+      throw new ExpressError(validation.errors.map(e => e.stack), 400)
     }
 
     const company = await Company.create(req.body)
@@ -61,10 +44,14 @@ router.post('/', adminRequired, async function (req, res, next) {
 
 router.patch('/:handle', adminRequired, async function (req, res, next) {
   try {
+    if ('handle' in req.body) {
+      throw new ExpressError('Changing the handle is not allowed.', 400)
+    }
+    
     const validation = validate(req.body, companyUpdateSchema)
 
     if (!validation.valid) {
-      let errorList = result.errors.map((error) => error.stack)
+      let errorList = validation.errors.map((error) => error.stack)
       let error = new ExpressError(errorList, 400)
       return next(error)
     }

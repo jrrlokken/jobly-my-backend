@@ -1,6 +1,6 @@
 const express = require('express')
 const { validate } = require('jsonschema')
-const { ensureCorrectUser } = require('../middleware/auth')
+const { authRequired, ensureCorrectUser } = require('../middleware/auth')
 const createToken = require('../helpers/createToken')
 const User = require('../models/user')
 const { userNewSchema, userUpdateSchema } = require('../schemas')
@@ -8,7 +8,7 @@ const ExpressError = require('../helpers/expressError')
 
 const router = express.Router()
 
-router.get('/', async function (req, res, next) {
+router.get('/', authRequired, async function (req, res, next) {
   try {
     const users = await User.findAll()
 
@@ -18,7 +18,7 @@ router.get('/', async function (req, res, next) {
   }
 })
 
-router.get('/:username', async function (req, res, next) {
+router.get('/:username', authRequired, async function (req, res, next) {
   try {
     const user = await User.findOne(req.params.username)
     return res.json({ user })
@@ -70,7 +70,7 @@ router.patch('/:username', ensureCorrectUser, async function (req, res, next) {
   }
 })
 
-router.delete('/:id', ensureCorrectUser, async function (req, res, next) {
+router.delete('/:username', ensureCorrectUser, async function (req, res, next) {
   try {
     await User.remove(req.params.username)
     return res.json({ message: 'User deleted' })
